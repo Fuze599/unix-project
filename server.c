@@ -39,11 +39,12 @@ int main(int argc, char **argv) {
   while (!end)
   {
     /* client trt */
+    /*
     int newsockfd = accept(sockfd, NULL, NULL);
 
     ssize_t ret = read(newsockfd, &msg, sizeof(msg));
 
-    nwrite(newsockfd, &msg, sizeof(msg));
+    nwrite(newsockfd, &msg, sizeof(msg));*/
 
 
   }

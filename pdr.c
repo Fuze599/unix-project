@@ -19,11 +19,13 @@ int main(int argc, char **argv) {
 	int shm_id = sshmget(SHM_SEM_KEY, NB_CLIENT * sizeof(int), IPC_CREAT | PERM);
 	int* ptns = sshmat(shm_id);
 
+
 	// make the operation 
+	int sem_id = sem_get(SHM_SEM_KEY, 1);
 	sem_down0(sem_id);
 	int actualAccount = *(ptns+account);
 	*(ptns+account) = actualAccount + sumMoney;
-	sshmdt(shm_id);
+	sshmdt(ptns);
 	sem_up0(sem_id);
 
 
