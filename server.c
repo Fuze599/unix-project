@@ -12,6 +12,9 @@
 #include "utils_v1.h"
 
 
+volatile sig_atomic_t end = 0;
+volatile sig_atomic_t canEnd = 1;
+
 #define BACKLOG 5
 
 int initSocketServer(int port)
@@ -33,6 +36,18 @@ int main(int argc, char **argv) {
 	int sockfd = initSocketServer(atoi(argv[1]));
 	printf("Le serveur tourne sur le port : %i \n", sockfd);
   
+  while (!end)
+  {
+    /* client trt */
+    /*
+    int newsockfd = accept(sockfd, NULL, NULL);
 
-  	sclose(sockfd);
+    ssize_t ret = read(newsockfd, &msg, sizeof(msg));
+
+    nwrite(newsockfd, &msg, sizeof(msg));*/
+
+
+  }
+
+  sclose(sockfd);
 }

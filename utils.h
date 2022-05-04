@@ -6,10 +6,14 @@
 #define NB_CLIENT 1000
 
 
-/* struct message used between server and client */
 typedef struct {
   int num_emeteur;
   int num_beneficiaire;
   int montant;
 } structVirement;
+
+typedef struct {
+  structVirement listVirements[100];
+  int tailleLogique;
+} structListVirement;
 #endif
