@@ -16,12 +16,12 @@ int main(int argc, char **argv) {
   switch(type) {
   	case 1:
 	  	int listAccount[NB_CLIENT];
-	  	sem_create(MOMORY_KEY, 1, PERM, 1);
-	  	sshmget(MOMORY_KEY, sizeof(listAccount), IPC_CREAT | PERM);
+	  	sem_create(SHM_SEM_KEY, 1, PERM, 1);
+	  	sshmget(SHM_SEM_KEY, sizeof(listAccount), IPC_CREAT | PERM);
   		break;
   	case 2:
-  		sshmdelete(MOMORY_KEY);
-  		sem_delete(MOMORY_KEY);
+  		sshmdelete(SHM_SEM_KEY);
+  		sem_delete(SHM_SEM_KEY);
   		break;
   	case 3:
   		break;

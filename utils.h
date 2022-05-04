@@ -7,7 +7,7 @@
 #define MAX_PSEUDO 		256
 
 // semaphore / shared memory
-#define MOMORY_KEY   666
+#define SHM_SEM_KEY   666
 #define NB_CLIENT 1000
 
 #define INSCRIPTION_REQUEST 10
