@@ -25,6 +25,4 @@ int main(int argc, char **argv) {
 	*(ptns+account) = actualAccount + sumMoney;
 	sshmdt(shm_id);
 	sem_up0(sem_id);
-
-
 }

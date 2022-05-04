@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
   int childTimerId = fork_and_run0(childTimer);
   printf("%d\n", childTimerId);
 
+  printf("Entrez une commande > ");
   char buffer[256];
   while (fgets(buffer, 256, stdin) != NULL) {
   	buffer[strlen(buffer) - 1] = '\0';
@@ -32,18 +33,29 @@ int main(int argc, char **argv) {
     	perror("Bad arguments");
     	continue;
     }
-  	if (strcmp(strToken, "+") == 0) {
-  		strToken = strtok (NULL, separator);
-  	} else if (strcmp(strToken, "+") == 0) {
-			strToken = strtok (NULL, separator);
 
-  	} else if (strcmp(strToken, "q") == 0) {
-  		exit(0);
-  	} else {
+    strcpy(buffer, strToken);
+
+    if (strcmp(strToken, "+") == 0 || strcmp(strToken, "*") == 0) {
+			strToken = strtok (NULL, separator);
+			int accountNb = atoi(strToken);
+  		strToken = strtok (NULL, separator);
+  		int amount = atoi(strToken);
+  		if (amount == 0) {
+  			printf("Le montant ne peux pas être nul\n");
+  			continue;
+  		}
+  		if (strcmp(buffer, "+") == 0) {
+  			printf("virement unique de %d€ vers le compte %d\n", amount, accountNb);
+  		} else {
+  			printf("virement récurent de %d€ vers le compte %d\n", amount, accountNb);
+  		}
+    }	else if (strcmp(strToken, "q") == 0) {
+    	exit(0);
+    } else {
 			perror("Bad arguments");
     	continue;
   	}
-        
+  	printf("Entrez une commande > ");
 	}
-
 }
