@@ -1,9 +1,14 @@
 #ifndef _MESSAGES_H_
 #define _MESSAGES_H_
 
-#define SERVER_PORT 	9501
+// server
+#define SERVER_PORT 	6666
 #define SERVER_IP		"127.0.0.1"  /* localhost */
 #define MAX_PSEUDO 		256
+
+// semaphore / shared memory
+#define MOMORY_KEY   666
+#define NB_CLIENT 1000
 
 #define INSCRIPTION_REQUEST 10
 #define INSCRIPTION_OK		11
