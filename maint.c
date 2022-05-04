@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "utils.h"
 #include "utils_v1.h"
@@ -21,7 +22,16 @@ int main(int argc, char **argv) {
 	int sem_id = sem_get(SHM_SEM_KEY, 1);
   	sem_delete(sem_id);
   } else if (type == 3) {
-
+  	if (argc >= 3) {
+  		int sem_id = sem_get(SHM_SEM_KEY, 1);
+  		int opt = atoi(argv[2]);
+  		sem_down0(sem_id);
+  		sleep(opt);
+  		sem_up0(sem_id);
+  	} else {
+		perror("Need opt argument");
+   		exit(1);
+  	}
   } else {
   	perror("Bad argument");
    	exit(1);
