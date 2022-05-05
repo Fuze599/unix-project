@@ -19,6 +19,14 @@ volatile sig_atomic_t canEnd = 1;
 
 #define BACKLOG 5
 
+void sigint_handler (int sig) {
+  char *msg = "Fin du serveur de virements\n";
+  size_t sz = strlen(msg);
+  nwrite(0, msg, sz);
+  while(!canEnd);
+  exit(0);
+}
+
 int initSocketServer(int port)
 {
   // socket creation
@@ -37,6 +45,12 @@ int main(int argc, char **argv) {
 
   structListVirement listVirement;
 
+  sigset_t set;
+  ssigemptyset (&set);
+  sigaddset(&set, SIGINT);
+
+  ssigaction(SIGINT, sigint_handler);
+
 	int sockfd = initSocketServer(atoi(argv[1]));
 	printf("Le serveur tourne sur le port : %i \n", sockfd);
 
@@ -50,6 +64,7 @@ int main(int argc, char **argv) {
   {
     // make the operation 
     int newsockfd = accept(sockfd, NULL, NULL);
+    canEnd=0;
 
 	  sem_down0(sem_id);
 	
@@ -69,6 +84,9 @@ int main(int argc, char **argv) {
     }
 
     sem_up0(sem_id);
+
+    canEnd=1;
+    sclose(newsockfd);
   }
 
   sshmdt(ptns);
