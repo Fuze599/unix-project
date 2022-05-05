@@ -92,7 +92,6 @@ int main(int argc, char **argv) {
 
     sprintf(messagePourClient,"Il y a eu %d virements pour un montant total de %deuros",nbVirements,sommeMontants);
     nwrite(newsockfd, &messagePourClient, strlen(messagePourClient));
-    printf("wrote\n");
     
     canEnd=1;
     sclose(newsockfd);

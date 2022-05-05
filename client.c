@@ -5,10 +5,25 @@
 
 #include "utils.h"
 #include "utils_v1.h"
+void virementsReccurents(void* pipefd){
+	int* ptnPipeFd = pipefd;
+	int intVal = 0;
+	while(sread(ptnPipeFd[0], &intVal, sizeof(int)) && intVal == 1){
+		if(intVal == 1){
+			printf("il faut exécuter les virements réccurents ici\n");
+			intVal = 0;
+		}
+	}
+}
 
-void childTimer() {
-	//dans le main il faut ajouter :
-	
+void childTimer(void *delay, void *pipefd) {
+	int* ptnPipeFd = pipefd;
+	int* ptn = (int*) delay;
+	int one = 1;
+	while(1){
+		sleep(*ptn);
+		swrite(ptnPipeFd[1], &one, sizeof(int));
+	}
 
 }
 
@@ -20,11 +35,13 @@ int main(int argc, char **argv) {
 
   char* address = argv[1];
   int port = atoi(argv[2]), num = atoi(argv[3]), delay = atoi(argv[4]);
+  //create a pipe
+  int pipefd[2];
+  spipe(pipefd);
 
-  printf("%d\n", delay);
-
-  int childTimerId = fork_and_run0(childTimer);
-  printf("%d\n", childTimerId);
+  int childTimerId = fork_and_run2(childTimer, &delay, &pipefd);
+  int childVirementsReccurents = fork_and_run1(virementsReccurents, &pipefd);
+  printf("%d, %d, %d, %d, %d \n", childTimerId, childVirementsReccurents, port, num, delay);
 
   printf("Entrez une commande > ");
   char buffer[BUFFER_SIZE];
@@ -78,4 +95,7 @@ int main(int argc, char **argv) {
   	}
   	printf("Entrez une commande > ");
 	}
+	// on ferme le pipe côté lecture et écriture
+	sclose(pipefd[0]);
+	sclose(pipefd[1]);
 }
