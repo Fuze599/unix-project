@@ -12,7 +12,7 @@
 #include "utils_v1.h"
 
 
-volatile sig_atomic_t end = 1;
+volatile sig_atomic_t end = 0;
 volatile sig_atomic_t canEnd = 1;
 
 #define PERM 0666
@@ -43,6 +43,8 @@ int main(int argc, char **argv) {
   // get shared memory
 	int shm_id = sshmget(SHM_SEM_KEY, NB_CLIENT * sizeof(int), IPC_CREAT | PERM);
 	int* ptns = sshmat(shm_id);
+
+  int sem_id = sem_get(SHM_SEM_KEY, 1);
   
   while (!end)
   {
@@ -69,6 +71,6 @@ int main(int argc, char **argv) {
     sem_up0(sem_id);
   }
 
-  sshmdt(shm_id);
+  sshmdt(ptns);
   sclose(sockfd);
 }
