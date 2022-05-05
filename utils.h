@@ -10,10 +10,10 @@ typedef struct {
   int num_emeteur;
   int num_beneficiaire;
   int montant;
-} structVirement;
+} Virement;
 
 typedef struct {
-  structVirement listVirements[100];
+  Virement listVirements[100];
   int tailleLogique;
-} structListVirement;
+} ListVirements;
 #endif
