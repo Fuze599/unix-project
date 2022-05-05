@@ -2,9 +2,10 @@
 #define _MESSAGES_H_
 
 // semaphore / shared memory
-#define SHM_SEM_KEY   666
+#define SHM_KEY   444
+#define SEM_KEY   666
 #define NB_CLIENT 1000
-
+#define BUFFER_SIZE 256
 
 typedef struct {
   int num_emeteur;

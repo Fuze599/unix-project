@@ -24,7 +24,7 @@ void sigint_handler (int sig) {
   size_t sz = strlen(msg);
   nwrite(0, msg, sz);
   while(!canEnd);
-  exit(0);
+  end=0;
 }
 
 int initSocketServer(int port)
@@ -51,31 +51,29 @@ int main(int argc, char **argv) {
 
   ssigaction(SIGINT, sigint_handler);
 
-	int sockfd = initSocketServer(atoi(argv[1]));
-	printf("Le serveur tourne sur le port : %i \n", sockfd);
+  int port = atoi(argv[1]);
+	int sockfd = initSocketServer(port);
+	printf("Le serveur tourne sur le port : %i \n", port);
 
   // get shared memory
-	int shm_id = sshmget(SHM_SEM_KEY, NB_CLIENT * sizeof(int), IPC_CREAT | PERM);
+	int shm_id = sshmget(SHM_KEY, NB_CLIENT * sizeof(int), IPC_CREAT | PERM);
 	int* ptns = sshmat(shm_id);
 
-  int sem_id = sem_get(SHM_SEM_KEY, 1);
+  int sem_id = sem_get(SEM_KEY, 1);
 
   int sommeMontants=0;
-  char messagePourClient [255];
+  char messagePourClient [BUFFER_SIZE];
   int nbVirements=0;
   
   while (!end) {
     // make the operation 
     int newsockfd = accept(sockfd, NULL, NULL);
-    canEnd=0;
-
-	  sem_down0(sem_id);
-	
-    read(newsockfd, &listVirement, sizeof(listVirement));
-
+    canEnd = 0;
+    sread(newsockfd, &listVirement, sizeof(listVirement));
     nbVirements=listVirement.tailleLogique;
     sommeMontants=0;
 
+    sem_down0(sem_id);
     for(int i=0;i<nbVirements;i++){
       int num_emeteur = listVirement.listVirements[i].num_emeteur;
       int num_beneficiaire = listVirement.listVirements[i].num_beneficiaire;
@@ -94,6 +92,7 @@ int main(int argc, char **argv) {
 
     sprintf(messagePourClient,"Il y a eu %d virements pour un montant total de %deuros",nbVirements,sommeMontants);
     nwrite(newsockfd, &messagePourClient, strlen(messagePourClient));
+    printf("wrote\n");
     
     canEnd=1;
     sclose(newsockfd);
