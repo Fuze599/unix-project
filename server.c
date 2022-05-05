@@ -35,7 +35,7 @@ int initSocketServer(int port)
 
 int main(int argc, char **argv) {
 
-  structListVirement listVirement;
+  ListVirements listVirement;
 
 	int sockfd = initSocketServer(atoi(argv[1]));
 	printf("Le serveur tourne sur le port : %i \n", sockfd);
@@ -46,8 +46,7 @@ int main(int argc, char **argv) {
 
   int sem_id = sem_get(SHM_SEM_KEY, 1);
   
-  while (!end)
-  {
+  while (!end) {
     // make the operation 
     int newsockfd = accept(sockfd, NULL, NULL);
 
