@@ -8,7 +8,7 @@
 void virementsReccurents(void* pipefd){
 	int* ptnPipeFd = pipefd;
 	int intVal = 0;
-	while(sread(ptnPipeFd[0], &intVal, sizeof(int)) && intVal == 1){
+	while(sread(ptnPipeFd[0], &intVal, sizeof(int))){
 		if(intVal == 1){
 			printf("il faut exécuter les virements réccurents ici\n");
 			intVal = 0;
