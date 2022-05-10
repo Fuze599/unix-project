@@ -16,6 +16,7 @@ void virementsReccurents(void* pipefd, void* address, void* port){
 	int* ptnPort = (int*) port;
 	Virement virementRecu;
 	char buffer[256];
+	sclose(ptnPipeFd[1]);
 	while(sread(ptnPipeFd[0], &virementRecu, sizeof(Virement))){
 		if(virementRecu.num_emeteur == -1){
 			printf("il faut exécuter les virements réccurents ici\n");
@@ -36,10 +37,12 @@ void virementsReccurents(void* pipefd, void* address, void* port){
 			printf("On ajoute a la liste %d \n", all_virements[indice - 1].montant);
 		}
 	}
+	sclose(ptnPipeFd[0]);
 }
 
 void childTimer(void *delay, void *pipefd) {
 	int* ptnPipeFd = pipefd;
+	sclose(ptnPipeFd[0]);
 	int* ptn = (int*) delay;
 	Virement fakeVirement;
 	fakeVirement.num_emeteur = -1;
@@ -47,6 +50,7 @@ void childTimer(void *delay, void *pipefd) {
 		sleep(*ptn);
 		swrite(ptnPipeFd[1], &fakeVirement, sizeof(int));
 	}
+	sclose(ptnPipeFd[1]);
 
 }
 
@@ -66,7 +70,7 @@ int main(int argc, char **argv) {
   int childTimerId = fork_and_run2(childTimer, &delay, &pipefd);
   int childVirementsReccurents = fork_and_run3(virementsReccurents, &pipefd, &address, &port);
   printf("%d, %d, %d, %d, %d \n", childTimerId, childVirementsReccurents, port, num, delay);
-
+  sclose(pipefd[0]);
   printf("Entrez une commande > ");
   char buffer[BUFFER_SIZE];
   while (fgets(buffer, BUFFER_SIZE, stdin) != NULL) {
@@ -113,6 +117,7 @@ int main(int argc, char **argv) {
   		}
   		sclose(sockfd);
     }	else if (strcmp(strToken, "q") == 0) {
+    	sclose(pipefd[1]);
     	exit(0);
     } else {
 			perror("Bad arguments");
@@ -121,7 +126,4 @@ int main(int argc, char **argv) {
   	}
   	printf("Entrez une commande > ");
 	}
-	// on ferme le pipe côté lecture et écriture
-	sclose(pipefd[0]);
-	sclose(pipefd[1]);
 }
