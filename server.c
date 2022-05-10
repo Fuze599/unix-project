@@ -27,17 +27,11 @@ void sigint_handler (int sig) {
   end=0;
 }
 
-int initSocketServer(int port)
-{
+int initSocketServer(int port) {
   // socket creation
   int sockfd = ssocket();
-
   sbind(port, sockfd);
-
-
   slisten(sockfd, BACKLOG);
-
-
   return sockfd;
 }
 
@@ -79,7 +73,6 @@ int main(int argc, char **argv) {
       int num_beneficiaire = listVirement.listVirements[i].num_beneficiaire;
       int montant = listVirement.listVirements[i].montant;
       sommeMontants+=montant;
-
 
       int emeteurCompte = *(ptns+num_emeteur);
       int beneficiaireCompte = *(ptns+num_beneficiaire);
