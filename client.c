@@ -5,13 +5,35 @@
 
 #include "utils.h"
 #include "utils_v1.h"
-void virementsReccurents(void* pipefd){
+
+
+
+void virementsReccurents(void* pipefd, void* address, void* port){
+	Virement all_virements[100]; 
+
+	int indice = 0;
 	int* ptnPipeFd = pipefd;
-	int intVal = 0;
-	while(sread(ptnPipeFd[0], &intVal, sizeof(int))){
-		if(intVal == 1){
+	int* ptnPort = (int*) port;
+	Virement virementRecu;
+	char buffer[256];
+	while(sread(ptnPipeFd[0], &virementRecu, sizeof(Virement))){
+		if(virementRecu.num_emeteur == -1){
 			printf("il faut exécuter les virements réccurents ici\n");
-			intVal = 0;
+			//Liste virements
+			ListVirements listvirementStruct;
+  		listvirementStruct.tailleLogique = indice;
+  		memcpy(listvirementStruct.listVirements, &all_virements, sizeof(all_virements));
+  		// Création socket pour interagir avec server
+			int sockfd = ssocket();
+  		sconnect(address, *ptnPort, sockfd);
+  		swrite(sockfd, &listvirementStruct, sizeof(listvirementStruct));
+  		sread(sockfd, &buffer, sizeof(buffer));
+  		printf("%s\n", buffer);
+  		sclose(sockfd);
+		}
+		else{ // on ajoute à la liste
+			all_virements[indice++] = virementRecu;
+			printf("On ajoute a la liste %d \n", all_virements[indice - 1].montant);
 		}
 	}
 }
@@ -19,10 +41,11 @@ void virementsReccurents(void* pipefd){
 void childTimer(void *delay, void *pipefd) {
 	int* ptnPipeFd = pipefd;
 	int* ptn = (int*) delay;
-	int one = 1;
+	Virement fakeVirement;
+	fakeVirement.num_emeteur = -1;
 	while(1){
 		sleep(*ptn);
-		swrite(ptnPipeFd[1], &one, sizeof(int));
+		swrite(ptnPipeFd[1], &fakeVirement, sizeof(int));
 	}
 
 }
@@ -38,9 +61,10 @@ int main(int argc, char **argv) {
   //create a pipe
   int pipefd[2];
   spipe(pipefd);
+  //sclose(pipefd[0]);
 
   int childTimerId = fork_and_run2(childTimer, &delay, &pipefd);
-  int childVirementsReccurents = fork_and_run1(virementsReccurents, &pipefd);
+  int childVirementsReccurents = fork_and_run3(virementsReccurents, &pipefd, &address, &port);
   printf("%d, %d, %d, %d, %d \n", childTimerId, childVirementsReccurents, port, num, delay);
 
   printf("Entrez une commande > ");
@@ -70,20 +94,22 @@ int main(int argc, char **argv) {
   		}
   		int sockfd = ssocket();
   		sconnect(address, port, sockfd);
-
+			Virement virement = {num, accountNb, amount};
+  		Virement listVirements[100];
+  		
   		if (strcmp(buffer, "+") == 0) {
-  			Virement virement = {num, accountNb, amount};
-  			Virement listVirements[100];
   			listVirements[0] = virement;
-  			ListVirements listvirementStruct;
-  			listvirementStruct.tailleLogique = 1;
-
+	  		ListVirements listvirementStruct;
+	  		listvirementStruct.tailleLogique = 1;
   			memcpy(listvirementStruct.listVirements, &listVirements, sizeof(listVirements));
   			swrite(sockfd, &listvirementStruct, sizeof(listvirementStruct));
   			sread(sockfd, &buffer, sizeof(buffer));
   			printf("%s\n", buffer);
   		} else {
   			printf("virement récurent de %d€ vers le compte %d\n", amount, accountNb);
+  			// créer nv virement reccurent
+  			swrite(pipefd[1], &virement, sizeof(Virement));
+
   		}
   		sclose(sockfd);
     }	else if (strcmp(strToken, "q") == 0) {

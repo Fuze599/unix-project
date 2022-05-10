@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 
     sem_up0(sem_id);
 
-    sprintf(messagePourClient,"Il y a eu %d virements pour un montant total de %deuros",nbVirements,sommeMontants);
+    sprintf(messagePourClient,"Il y a eu %d virements pour un montant total de %d euros",nbVirements,sommeMontants);
     nwrite(newsockfd, &messagePourClient, strlen(messagePourClient));
     
     canEnd=1;
