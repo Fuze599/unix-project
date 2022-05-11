@@ -98,7 +98,6 @@ int main(int argc, char **argv) {
 	// Close the unused part of pipe  
   	sclose(pipefd[0]);
 
-
 	// Get the stdin
   	char buffer[BUFFER_SIZE];
   	while (fgets(buffer, BUFFER_SIZE, stdin) != NULL) {
@@ -112,8 +111,7 @@ int main(int argc, char **argv) {
     		continue;
     	}
 
-    	strcpy(buffer, strToken);
-    	if (strcmp(strToken, "+") == 0 || strcmp(strToken, "*") == 0) {
+    	if (buffer[0] == '+' || buffer[0] == '*') {
 			// Get the accunt number and the amount from the token
 			strToken = strtok (NULL, separator);
 			if (strToken == NULL) {
@@ -141,7 +139,7 @@ int main(int argc, char **argv) {
 			// Create the virement
 			Virement virement = {num, accountNb, amount};
   		
-			if (strcmp(buffer, "+") == 0) {
+			if (buffer[0] == '+') {
 				// Create a list of recurrent transfer
 				Virement listVirements[100];
 				listVirements[0] = virement;

@@ -4,8 +4,6 @@
 #include "utils.h"
 #include "utils_v1.h"
 
-#define PERM 0666
-
 int main(int argc, char **argv) {
   if (argc < 2) {
   	perror("Not enough args");

@@ -13,7 +13,6 @@
 
 volatile sig_atomic_t end = 0;
 
-#define PERM 0666
 #define BACKLOG 5
 
 void sigint_handler (int sig) {
@@ -47,7 +46,13 @@ int main(int argc, char **argv) {
     // Accept a new connection
     int newsockfd = accept(sockfd, NULL, NULL);
 
-    if (end) break;
+    if (end) {
+      
+      break;
+    } else if (newsockfd == -1) {
+      perror("Erreur de connection");
+      break;
+    }
 
     // Wait for the list of transfer
     ListVirements listVirement;
@@ -69,8 +74,9 @@ int main(int argc, char **argv) {
       int montant = listVirement.listVirements[i].montant;
 
       /* Check if the amount of money in not negative 
-         and if the receiver and the offeror are not the same */
-      if (num_beneficiaire != num_emeteur && montant > 0) {
+         and if the receiver and the offeror are not the same and are bewteen 0 and 99 */
+      if (num_beneficiaire != num_emeteur && montant > 0 
+            && num_emeteur >= 0 && num_emeteur < 100 && num_beneficiaire >= 0 && num_beneficiaire < 100) {
 
         // Do the transfer
         sommeMontants += montant;

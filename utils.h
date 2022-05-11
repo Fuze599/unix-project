@@ -6,6 +6,7 @@
 #define SEM_KEY   666
 #define NB_CLIENT 1000
 #define BUFFER_SIZE 256
+#define PERM 0666
 
 typedef struct {
   int num_emeteur;
