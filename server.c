@@ -79,11 +79,13 @@ int main(int argc, char **argv) {
 
 	    *(ptns+num_emeteur) = emeteurCompte - montant;
       *(ptns+num_beneficiaire) = beneficiaireCompte + montant;
+      sprintf(messagePourClient, "Nouvelle somme : %d\n", *(ptns+num_emeteur));
     }
-
+    
     sem_up0(sem_id);
 
-    sprintf(messagePourClient,"Il y a eu %d virements pour un montant total de %d euros", nbVirements, sommeMontants);
+    //sprintf(messagePourClient,"Il y a eu %d virements pour un montant total de %d euros", nbVirements, sommeMontants);
+    
     nwrite(newsockfd, &messagePourClient, strlen(messagePourClient));
     
     canEnd=1;

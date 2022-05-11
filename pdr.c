@@ -25,6 +25,8 @@ int main(int argc, char **argv) {
 	sem_down0(sem_id);
 	int actualAccount = *(ptns+account);
 	*(ptns+account) = actualAccount + sumMoney;
+	printf("Nouveau solde : %d\n", *(ptns+account));
 	sshmdt(ptns);
 	sem_up0(sem_id);
+	
 }

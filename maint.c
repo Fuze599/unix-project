@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 	sshmget(SHM_KEY, NB_CLIENT * sizeof(int), IPC_CREAT | PERM);
   } else if (type == 2) {
     int sem_id = sem_get(SEM_KEY, 1);
-  	sem_down0(sem_id);
+  	//sem_down0(sem_id);
   	int shm_id = sshmget(SHM_KEY, NB_CLIENT * sizeof(int), IPC_CREAT | PERM);
 	  sshmdelete(shm_id);
   	sem_delete(sem_id);
