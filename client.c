@@ -26,18 +26,19 @@ void virementsReccurents(void* pipefd, void* address, void* port){
 			break;
 		} 
 		else if(virementRecu.num_emeteur == -1) {
+			if(indice == 0) continue;
 			printf("il faut exécuter les virements réccurents ici\n");
 			//Liste virements
 			ListVirements listvirementStruct;
-  		listvirementStruct.tailleLogique = indice;
-  		memcpy(listvirementStruct.listVirements, &all_virements, sizeof(all_virements));
-  		// Création socket pour interagir avec server
+			listvirementStruct.tailleLogique = indice;
+			memcpy(listvirementStruct.listVirements, &all_virements, sizeof(all_virements));
+			// Création socket pour interagir avec server
 			int sockfd = ssocket();
-  		sconnect(address, *ptnPort, sockfd);
-  		swrite(sockfd, &listvirementStruct, sizeof(listvirementStruct));
-  		sread(sockfd, &buffer, sizeof(buffer));
-  		printf("%s\n", buffer);
-  		sclose(sockfd);
+			sconnect(address, *ptnPort, sockfd);
+			swrite(sockfd, &listvirementStruct, sizeof(listvirementStruct));
+			sread(sockfd, &buffer, sizeof(buffer));
+			printf("%s\n", buffer);
+			sclose(sockfd);
 		}
 		else{ // on ajoute à la liste
 			all_virements[indice++] = virementRecu;
