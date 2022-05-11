@@ -1,6 +1,6 @@
 #ifndef _MESSAGES_H_
 #define _MESSAGES_H_
-
+#include <stdbool.h>
 // semaphore / shared memory
 #define SHM_KEY   444
 #define SEM_KEY   666
@@ -16,5 +16,6 @@ typedef struct {
 typedef struct {
   Virement listVirements[100];
   int tailleLogique;
+  bool isRecurrent;
 } ListVirements;
 #endif

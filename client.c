@@ -19,7 +19,7 @@ void virementsReccurents(void* pipefd, void* address, void* port){
 	int* ptnPipeFd = pipefd;
 	int* ptnPort = (int*) port;
 	Virement virementRecu;
-	char buffer[256];
+	//char buffer[256];
 	sclose(ptnPipeFd[1]);
 	while(sread(ptnPipeFd[0], &virementRecu, sizeof(Virement))) {
 		if (virementRecu.num_emeteur == -2) {
@@ -27,34 +27,30 @@ void virementsReccurents(void* pipefd, void* address, void* port){
 		} 
 		else if(virementRecu.num_emeteur == -1) {
 			if(indice == 0) continue;
-			printf("il faut exécuter les virements réccurents ici\n");
 			//Liste virements
 			ListVirements listvirementStruct;
 			listvirementStruct.tailleLogique = indice;
+			listvirementStruct.isRecurrent = true;
 			memcpy(listvirementStruct.listVirements, &all_virements, sizeof(all_virements));
 			// Création socket pour interagir avec server
 			int sockfd = ssocket();
 			sconnect(address, *ptnPort, sockfd);
 			swrite(sockfd, &listvirementStruct, sizeof(listvirementStruct));
-			sread(sockfd, &buffer, sizeof(buffer));
-			printf("%s\n", buffer);
 			sclose(sockfd);
 		}
 		else{ // on ajoute à la liste
 			all_virements[indice++] = virementRecu;
-			printf("On ajoute a la liste %d \n", all_virements[indice - 1].montant);
 		}
 	}
 	sclose(ptnPipeFd[0]);
-	printf("fin virement\n");
 	exit(0);
 }
 
 void childTimer(void *delay, void *pipefd) {
-	sigset_t set;
-  ssigemptyset (&set);
-  sigaddset(&set, SIGINT);
-  ssigaction(SIGINT, sigint_handler);
+	/*sigset_t set;
+	ssigemptyset (&set);
+	sigaddset(&set, SIGINT);*/
+	ssigaction(SIGINT, sigint_handler);
 
 	int* ptnPipeFd = pipefd;
 	sclose(ptnPipeFd[0]);
@@ -66,7 +62,6 @@ void childTimer(void *delay, void *pipefd) {
 		swrite(ptnPipeFd[1], &fakeVirement, sizeof(int));
 	}
 	sclose(ptnPipeFd[1]);
-	printf("fin timer\n");
 	exit(0);
 }
 
@@ -84,9 +79,7 @@ int main(int argc, char **argv) {
 
   int childTimerId = fork_and_run2(childTimer, &delay, &pipefd);
   int childVirementsReccurents = fork_and_run3(virementsReccurents, &pipefd, &address, &port);
-  printf("%d, %d, %d, %d, %d \n", childTimerId, childVirementsReccurents, port, num, delay);
   sclose(pipefd[0]);
-  printf("Entrez une commande > ");
   char buffer[BUFFER_SIZE];
   while (fgets(buffer, BUFFER_SIZE, stdin) != NULL) {
   	buffer[strlen(buffer) - 1] = '\0';
@@ -95,7 +88,6 @@ int main(int argc, char **argv) {
 
     if (strToken == NULL) {
     	perror("Bad arguments");
-    	printf("Entrez une commande > ");
     	continue;
     }
 
@@ -107,7 +99,6 @@ int main(int argc, char **argv) {
   		int amount = atoi(strToken);
   		if (amount == 0) {
   			printf("Le montant ne peux pas être nul\n");
-  			printf("Entrez une commande > ");
   			continue;
   		}
   		int sockfd = ssocket();
@@ -119,12 +110,12 @@ int main(int argc, char **argv) {
   			listVirements[0] = virement;
 	  		ListVirements listvirementStruct;
 	  		listvirementStruct.tailleLogique = 1;
+			listvirementStruct.isRecurrent = false;
   			memcpy(listvirementStruct.listVirements, &listVirements, sizeof(listVirements));
   			swrite(sockfd, &listvirementStruct, sizeof(listvirementStruct));
   			sread(sockfd, &buffer, sizeof(buffer));
   			printf("%s\n", buffer);
   		} else {
-  			printf("virement récurent de %d€ vers le compte %d\n", amount, accountNb);
   			// créer nv virement reccurent
   			swrite(pipefd[1], &virement, sizeof(Virement));
   		}
@@ -141,9 +132,7 @@ int main(int argc, char **argv) {
     	exit(0);
     } else {
 			perror("Bad arguments");
-			printf("Entrez une commande > ");
     	continue;
   	}
-  	printf("Entrez une commande > ");
-	}
+ }
 }
