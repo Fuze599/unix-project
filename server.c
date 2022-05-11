@@ -55,23 +55,23 @@ int main(int argc, char **argv) {
     }
 
     // Wait for the list of transfer
-    ListVirements listVirement;
-    sread(newsockfd, &listVirement, sizeof(listVirement));
+    ListVirements listVirementStruct;
+    sread(newsockfd, &listVirementStruct, sizeof(listVirementStruct));
 
     if (end) {
       sclose(newsockfd);
       break;
     }
 
-    int nbVirements = listVirement.tailleLogique;
+    int nbVirements = listVirementStruct.tailleLogique;
     int sommeMontants = 0;
 
     sem_down0(sem_id);
     for (int i = 0; i < nbVirements; i++) {
       // Get the informations of the transfer
-      int num_emeteur = listVirement.listVirements[i].num_emeteur;
-      int num_beneficiaire = listVirement.listVirements[i].num_beneficiaire;
-      int montant = listVirement.listVirements[i].montant;
+      int num_emeteur = listVirementStruct.listVirements[i].num_emeteur;
+      int num_beneficiaire = listVirementStruct.listVirements[i].num_beneficiaire;
+      int montant = listVirementStruct.listVirements[i].montant;
 
       /* Check if the amount of money in not negative 
          and if the receiver and the offeror are not the same and are bewteen 0 and 99 */
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
         *(ptns+num_beneficiaire) = beneficiaireCompte + montant;
 
         // If it's an only transfer, send the balance to the client
-        if (!listVirement.isRecurrent) {
+        if (!listVirementStruct.isRecurrent) {
           swrite(newsockfd, ptns + num_emeteur, sizeof(int));
           break;
         }

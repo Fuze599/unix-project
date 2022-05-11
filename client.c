@@ -14,7 +14,7 @@ void sigint_handler(int sig) {
 
 void virementsReccurents(void* pipefd, void* address, void* port) {
 	// Init the list of transfers
-	Virement all_virements[100]; 
+	Virement all_virements[100] = {0}; 
 
 	// Init the logical number of the list of transfers and get the port number
 	int nbVirementRecurrent = 0;
@@ -30,9 +30,10 @@ void virementsReccurents(void* pipefd, void* address, void* port) {
 			break;
 		} 
 		else if(virementRecu.num_emeteur == -1) { // 
-			if (nbVirementRecurrent == 0) continue;
+			if (nbVirementRecurrent == 0) continue;				
 			// Init the transfers list struct
 			ListVirements listvirementStruct;
+			memset(&listvirementStruct, 0, sizeof(listvirementStruct));
 			listvirementStruct.tailleLogique = nbVirementRecurrent;
 			listvirementStruct.isRecurrent = true;
 			memcpy(listvirementStruct.listVirements, &all_virements, sizeof(all_virements));
@@ -141,9 +142,10 @@ int main(int argc, char **argv) {
   		
 			if (buffer[0] == '+') {
 				// Create a list of recurrent transfer
-				Virement listVirements[100];
+				Virement listVirements[100] = {0};
 				listVirements[0] = virement;
 				ListVirements listvirementStruct;
+				memset(&listvirementStruct, 0, sizeof(listvirementStruct));
 				listvirementStruct.tailleLogique = 1;
 				listvirementStruct.isRecurrent = false;
 				memcpy(listvirementStruct.listVirements, &listVirements, sizeof(listVirements));
