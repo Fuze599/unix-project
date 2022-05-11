@@ -11,22 +11,19 @@
 #include "utils.h"
 #include "utils_v1.h"
 
-
 volatile sig_atomic_t end = 0;
 
 #define PERM 0666
-
 #define BACKLOG 5
 
 void sigint_handler (int sig) {
-  char *msg = "Fin du serveur de virements\n";
-  size_t sz = strlen(msg);
-  nwrite(0, msg, sz);
-  end=1;
+  char *msg = "\nFin du serveur de virements\n";
+  nwrite(0, msg, strlen(msg));
+  end = 1;
 }
 
+// Init the socket
 int initSocketServer(int port) {
-  // socket creation
   int sockfd = ssocket();
   sbind(port, sockfd);
   slisten(sockfd, BACKLOG);
@@ -34,73 +31,68 @@ int initSocketServer(int port) {
 }
 
 int main(int argc, char **argv) {
-
-  ListVirements listVirement;
-
-  sigset_t set;
-  ssigemptyset (&set);
-  sigaddset(&set, SIGINT);
-
+  // CTRL-C Handler
   ssigaction(SIGINT, sigint_handler);
 
   int port = atoi(argv[1]);
 	int sockfd = initSocketServer(port);
 	printf("Le serveur tourne sur le port : %i \n", port);
 
-  // get shared memory
+  // get shared memory and semaphore
 	int shm_id = sshmget(SHM_KEY, NB_CLIENT * sizeof(int), IPC_CREAT | PERM);
 	int* ptns = sshmat(shm_id);
-
   int sem_id = sem_get(SEM_KEY, 1);
-
-  int sommeMontants=0;
-  char messagePourClient [BUFFER_SIZE];
-  int nbVirements=0;
   
   while (!end) {
-    // make the operation 
+    // Accept a new connection
     int newsockfd = accept(sockfd, NULL, NULL);
-    //if ctrl+c
-    if(end){
-      break;
-    }
 
-    read(newsockfd, &listVirement, sizeof(listVirement));
-    //if ctrl+c
-    if(end){
+    if (end) break;
+
+    // Wait for the list of transfer
+    ListVirements listVirement;
+    sread(newsockfd, &listVirement, sizeof(listVirement));
+
+    if (end) {
       sclose(newsockfd);
       break;
     }
 
-    nbVirements=listVirement.tailleLogique;
-    sommeMontants=0;
+    int nbVirements = listVirement.tailleLogique;
+    int sommeMontants = 0;
 
     sem_down0(sem_id);
-    for(int i=0;i<nbVirements;i++){
+    for (int i = 0; i < nbVirements; i++) {
+      // Get the informations of the transfer
       int num_emeteur = listVirement.listVirements[i].num_emeteur;
       int num_beneficiaire = listVirement.listVirements[i].num_beneficiaire;
       int montant = listVirement.listVirements[i].montant;
-      sommeMontants+=montant;
 
-      int emeteurCompte = *(ptns+num_emeteur);
-      int beneficiaireCompte = *(ptns+num_beneficiaire);
+      /* Check if the amount of money in not negative 
+         and if the receiver and the offeror are not the same */
+      if (num_beneficiaire != num_emeteur && montant > 0) {
 
-	    *(ptns+num_emeteur) = emeteurCompte - montant;
-      *(ptns+num_beneficiaire) = beneficiaireCompte + montant;
-      if (!listVirement.isRecurrent) {
-        sprintf(messagePourClient, "Nouvelle somme : %d", *(ptns+num_emeteur));
-        nwrite(newsockfd, &messagePourClient, strlen(messagePourClient));
-        break;
+        // Do the transfer
+        sommeMontants += montant;
+        int emeteurCompte = *(ptns+num_emeteur);
+	      *(ptns+num_emeteur) = emeteurCompte - montant;
+        int beneficiaireCompte = *(ptns+num_beneficiaire);
+        *(ptns+num_beneficiaire) = beneficiaireCompte + montant;
+
+        // If it's an only transfer, send the balance to the client
+        if (!listVirement.isRecurrent) {
+          swrite(newsockfd, ptns + num_emeteur, sizeof(int));
+          break;
+        }
       }
     }
     
-    sem_up0(sem_id);
-    //sprintf(messagePourClient,"Il y a eu %d virements pour un montant total de %d euros", nbVirements, sommeMontants);
-    
-
+    // close the connection and the semaphore
+    sem_up0(sem_id);    
     sclose(newsockfd);
   }
 
+  // Close the shared memory and the socket
   sshmdt(ptns);
   sclose(sockfd);
 }

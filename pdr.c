@@ -28,5 +28,4 @@ int main(int argc, char **argv) {
 	printf("Nouveau solde : %d\n", *(ptns+account));
 	sshmdt(ptns);
 	sem_up0(sem_id);
-	
 }
