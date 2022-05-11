@@ -13,7 +13,6 @@
 
 
 volatile sig_atomic_t end = 0;
-volatile sig_atomic_t canEnd = 1;
 
 #define PERM 0666
 
@@ -23,8 +22,7 @@ void sigint_handler (int sig) {
   char *msg = "Fin du serveur de virements\n";
   size_t sz = strlen(msg);
   nwrite(0, msg, sz);
-  while(!canEnd);
-  end=0;
+  end=1;
 }
 
 int initSocketServer(int port) {
@@ -62,8 +60,18 @@ int main(int argc, char **argv) {
   while (!end) {
     // make the operation 
     int newsockfd = accept(sockfd, NULL, NULL);
-    canEnd = 0;
-    sread(newsockfd, &listVirement, sizeof(listVirement));
+    //if ctrl+c
+    if(end){
+      break;
+    }
+
+    read(newsockfd, &listVirement, sizeof(listVirement));
+    //if ctrl+c
+    if(end){
+      sclose(newsockfd);
+      break;
+    }
+
     nbVirements=listVirement.tailleLogique;
     sommeMontants=0;
 
@@ -88,7 +96,7 @@ int main(int argc, char **argv) {
     
     nwrite(newsockfd, &messagePourClient, strlen(messagePourClient));
     
-    canEnd=1;
+
     sclose(newsockfd);
   }
 
