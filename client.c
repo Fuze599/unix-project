@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
 			}
 			sclose(sockfd);
 		}
-		else if (buffer[0] == 'q') {//strcmp(strToken, "q") == 0) {
+		else if (buffer[0] == 'q') {
 			// Send signal the the timer to stop it
 			skill(childTimerId, SIGINT);
 			swaitpid(childTimerId, NULL, 0);
