@@ -20,7 +20,7 @@ void virementsReccurents(void* pipefd, void* address, void* port) {
 	int nbVirementRecurrent = 0;
 	int* ptnPort = (int*) port;
 
-	// Get the pipe and close the bad pipe way
+	// Get the pipe and close the unused part of pipe
 	int* ptnPipeFd = pipefd;
 	sclose(ptnPipeFd[1]);
 
@@ -58,7 +58,7 @@ void childTimer(void *delay, void *pipefd) {
 	// Handler for the CTRL+C
 	ssigaction(SIGINT, sigint_handler);
 
-	// Get the pipe and close the bad pipe way
+	// Get the pipe and close the unused part of pipe
 	int* ptnPipeFd = pipefd;
 	sclose(ptnPipeFd[0]);
 
@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
     	}
 
     	if (buffer[0] == '+' || buffer[0] == '*') {
-			// Get the accunt number and the amount from the token
+			// Get the account number and the amount from the token
 			strToken = strtok (NULL, separator);
 			if (strToken == NULL) {
     			perror("Bad arguments");
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
     		}
 			int amount = atoi(strToken);
 
-			// If amount or accoutn numbers are incorrect
+			// If amount or account numbers are incorrect
 			if (amount <= 0 || accountNb < 0 || accountNb >= 100) {
 				printf("Le montant ou le numero de compte est incorrect\n");
 				continue;
@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
 			}
 			sclose(sockfd);
 		}
-		else if (strcmp(strToken, "q") == 0) {
+		else if (buffer[0] == 'q') {//strcmp(strToken, "q") == 0) {
 			// Send signal the the timer to stop it
 			skill(childTimerId, SIGINT);
 			swaitpid(childTimerId, NULL, 0);

@@ -47,14 +47,13 @@ int main(int argc, char **argv) {
     int newsockfd = accept(sockfd, NULL, NULL);
 
     if (end) {
-      
       break;
     } else if (newsockfd == -1) {
       perror("Erreur de connection");
       break;
     }
 
-    // Wait for the list of transfer
+    // Wait for the list of transfers
     ListVirements listVirementStruct;
     sread(newsockfd, &listVirementStruct, sizeof(listVirementStruct));
 
@@ -68,13 +67,13 @@ int main(int argc, char **argv) {
 
     sem_down0(sem_id);
     for (int i = 0; i < nbVirements; i++) {
-      // Get the informations of the transfer
+      // Get the information of the transfer
       int num_emeteur = listVirementStruct.listVirements[i].num_emeteur;
       int num_beneficiaire = listVirementStruct.listVirements[i].num_beneficiaire;
       int montant = listVirementStruct.listVirements[i].montant;
 
-      /* Check if the amount of money in not negative 
-         and if the receiver and the offeror are not the same and are bewteen 0 and 99 */
+      /* Check if the amount of money is not negative 
+         and if the receiver and the offeror are not the same and are bewteen 0 and 99 included */
       if (num_beneficiaire != num_emeteur && montant > 0 
             && num_emeteur >= 0 && num_emeteur < 100 && num_beneficiaire >= 0 && num_beneficiaire < 100) {
 
@@ -85,7 +84,7 @@ int main(int argc, char **argv) {
         int beneficiaireCompte = *(ptns+num_beneficiaire);
         *(ptns+num_beneficiaire) = beneficiaireCompte + montant;
 
-        // If it's an only transfer, send the balance to the client
+        // If it's only one transfer, send the balance to the client
         if (!listVirementStruct.isRecurrent) {
           swrite(newsockfd, ptns + num_emeteur, sizeof(int));
           break;
@@ -93,7 +92,7 @@ int main(int argc, char **argv) {
       }
     }
     
-    // close the connection and the semaphore
+    // Close the connection and the semaphore
     sem_up0(sem_id);    
     sclose(newsockfd);
   }
