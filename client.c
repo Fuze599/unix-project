@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
 
 			// Close the pipe and exit
 			sclose(pipefd[1]);
-			printf("Tchao tchao tchao !\n");
+			printf("Au revoir.\n");
 			exit(0);
 		} 
 		else {
