@@ -79,38 +79,38 @@ void childTimer(void *delay, void *pipefd) {
 
 int main(int argc, char **argv) {
 	// Check the number of arguments
-  	if (argc != 5) {
-  		perror("Not enough args");
-  		exit(1);
-  	}
+	if (argc != 5) {
+		perror("Not enough args");
+		exit(1);
+	}
 
-    // Get the arguments
-  	char* address = argv[1];
-  	int port = atoi(argv[2]), num = atoi(argv[3]), delay = atoi(argv[4]);
+	// Get the arguments
+	char* address = argv[1];
+	int port = atoi(argv[2]), num = atoi(argv[3]), delay = atoi(argv[4]);
 
-  	// create the pipe
-  	int pipefd[2];
-  	spipe(pipefd);
+	// create the pipe
+	int pipefd[2];
+	spipe(pipefd);
 
 	// Create the timer and the recurrent transfers as childs
-  	int childTimerId = fork_and_run2(childTimer, &delay, &pipefd);
-  	int childVirementsRecurrents = fork_and_run3(virementsReccurents, &pipefd, &address, &port);
+	int childTimerId = fork_and_run2(childTimer, &delay, &pipefd);
+	int childVirementsRecurrents = fork_and_run3(virementsReccurents, &pipefd, &address, &port);
 
 	// Close the unused part of pipe  
-  	sclose(pipefd[0]);
+	sclose(pipefd[0]);
 
 	// Get the stdin
-  	char buffer[BUFFER_SIZE];
-  	while (fgets(buffer, BUFFER_SIZE, stdin) != NULL) {
-  		buffer[strlen(buffer) - 1] = '\0';
-    	const char* separator = " ";
-    	char* strToken = strtok (buffer, separator);
+	char buffer[BUFFER_SIZE];
+	while (fgets(buffer, BUFFER_SIZE, stdin) != NULL) {
+		buffer[strlen(buffer) - 1] = '\0';
+		const char* separator = " ";
+		char* strToken = strtok (buffer, separator);
 
 		// If no text entered
-    	if (strToken == NULL) {
-    		perror("Bad arguments");
-    		continue;
-    	}
+		if (strToken == NULL) {
+			perror("Bad arguments");
+			continue;
+		}
 
     	if (buffer[0] == '+' || buffer[0] == '*') {
 			// Get the account number and the amount from the token
